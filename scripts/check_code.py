@@ -76,7 +76,9 @@ class CodeQualityChecker:
 def main():
     if len(sys.argv) < 2:
         print("Usage: python scripts/check_code.py <file1> [<file2> ...]")
-        print("Example: poetry run python scripts/check_code.py app/presentation/api/v1/endpoints/data.py")
+        print(
+            "Example: poetry run python scripts/check_code.py app/presentation/api/v1/endpoints/data.py"
+        )
         sys.exit(1)
 
     checker = CodeQualityChecker(sys.argv[1:])
