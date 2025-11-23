@@ -1,7 +1,7 @@
 from datetime import date
-from typing import Dict, Optional
+from typing import Optional, Dict, Any
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class CoalPile(BaseModel):
@@ -9,6 +9,7 @@ class CoalPile(BaseModel):
     Статическая информация о штабеле угля.
     Источник: supplies.csv → колонка 'Наим. ЕТСНГ', 'ВыгрузкаНаСклад', 'На склад, тн'
     """
+    model_config = ConfigDict(from_attributes=True)
 
     pile_id: int
     coal_type: str
@@ -22,6 +23,7 @@ class TemperatureReading(BaseModel):
     Замер температуры в штабеле.
     Источник: temperature.csv
     """
+    model_config = ConfigDict(from_attributes=True)
 
     pile_id: int
     warehouse_id: int
@@ -36,6 +38,7 @@ class FireIncident(BaseModel):
     Подтверждённый факт самовозгорания.
     Источник: fires.csv
     """
+    model_config = ConfigDict(from_attributes=True)
 
     pile_id: int
     warehouse_id: int
@@ -49,6 +52,7 @@ class WeatherData(BaseModel):
     Агрегированные погодные данные за день.
     Источник: weather.csv → агрегация по дням
     """
+    model_config = ConfigDict(from_attributes=True)
 
     date: date
     air_temperature: float  # Средняя температура воздуха
@@ -77,6 +81,8 @@ class Prediction(BaseModel):
     Единая запись прогноза для хранения в БД (для одного дня из прогноза на 3 дня).
     Используется в таблице `predictions`.
     """
+
+    model_config = ConfigDict(from_attributes=True)
 
     pile_id: int
     warehouse_id: int
