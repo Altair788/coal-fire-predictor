@@ -4,6 +4,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
 
 from app.application.use_cases.calculate_fire_risk import CalculateFireRisk
+from app.application.use_cases.get_dashboard_data import GetDashboardData
 from app.core.config import settings
 from app.domain.interfaces import (
     CoalPileRepository,
@@ -79,4 +80,19 @@ def get_calculate_fire_risk(
         weather_repo=weather_repo,
         prediction_repo=pred_repo,
         ml_service=ml_service,
+    )
+
+def get_get_dashboard_data(
+    pile_repo=Depends(get_coal_pile_repository),
+    temp_repo=Depends(get_temperature_repository),
+    pred_repo=Depends(get_prediction_repository),
+    fire_repo=Depends(get_fire_incident_repository),
+    weather_repo=Depends(get_weather_repository),
+) -> GetDashboardData:
+    return GetDashboardData(
+        pile_repo=pile_repo,
+        temp_repo=temp_repo,
+        pred_repo=pred_repo,
+        fire_repo=fire_repo,
+        weather_repo=weather_repo,
     )
