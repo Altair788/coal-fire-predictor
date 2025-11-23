@@ -3,6 +3,7 @@ from fastapi import Depends
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
 
+from app.application.use_cases.calculate_fire_risk import CalculateFireRisk
 from app.core.config import settings
 from app.domain.interfaces import (
     CoalPileRepository,
@@ -61,3 +62,21 @@ def get_prediction_repository(session: Session = Depends(get_db_session)) -> Pre
 
 def get_ml_service() -> MLService:
     return MLModelAdapter()
+
+
+def get_calculate_fire_risk(
+    pile_repo=Depends(get_coal_pile_repository),
+    temp_repo=Depends(get_temperature_repository),
+    fire_repo=Depends(get_fire_incident_repository),
+    weather_repo=Depends(get_weather_repository),
+    pred_repo=Depends(get_prediction_repository),
+    ml_service=Depends(get_ml_service),
+) -> CalculateFireRisk:
+    return CalculateFireRisk(
+        pile_repo=pile_repo,
+        temp_repo=temp_repo,
+        fire_repo=fire_repo,
+        weather_repo=weather_repo,
+        prediction_repo=pred_repo,
+        ml_service=ml_service,
+    )
