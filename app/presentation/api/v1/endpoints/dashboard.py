@@ -2,6 +2,7 @@ from fastapi import APIRouter
 
 router = APIRouter()
 
+
 @router.get("")
 def get_dashboard():
     return {
@@ -15,8 +16,8 @@ def get_dashboard():
                 "risk_forecast": {
                     "2025-11-23": "low",
                     "2025-11-24": "medium",
-                    "2025-11-25": "high"
-                }
+                    "2025-11-25": "high",
+                },
             },
             {
                 "pile_id": 6,
@@ -27,14 +28,11 @@ def get_dashboard():
                 "risk_forecast": {
                     "2025-11-23": "medium",
                     "2025-11-24": "high",
-                    "2025-11-25": "high"
-                }
-            }
+                    "2025-11-25": "high",
+                },
+            },
         ],
-        "weather_summary": {
-            "temp_avg": 5.2,
-            "humidity": 78
-        },
+        "weather_summary": {"temp_avg": 5.2, "humidity": 78},
         "days_without_fire": 42,
-        "last_update": "2025-11-22T10:00:00Z"
+        "last_update": "2025-11-22T10:00:00Z",
     }

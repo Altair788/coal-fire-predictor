@@ -1,5 +1,6 @@
 from fastapi import APIRouter
-from .endpoints import data, predict, dashboard, analytics, pile_history
+
+from .endpoints import analytics, dashboard, data, pile_history, predict
 
 router = APIRouter(prefix="/api/v1")
 

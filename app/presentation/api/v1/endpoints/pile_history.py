@@ -2,6 +2,7 @@ from fastapi import APIRouter, Path
 
 router = APIRouter()
 
+
 @router.get("/{pile_id}/history")
 def get_pile_history(pile_id: int = Path(...)):
     return {
@@ -15,12 +16,12 @@ def get_pile_history(pile_id: int = Path(...)):
             {"date": "2025-11-12", "temp": 33.5},
             {"date": "2025-11-15", "temp": 35.7},
             {"date": "2025-11-18", "temp": 38.2},
-            {"date": "2025-11-20", "temp": 40.1}
+            {"date": "2025-11-20", "temp": 40.1},
         ],
         "risk_history": [
             {"date": "2025-11-15", "level": "low", "probability": 0.08},
             {"date": "2025-11-18", "level": "medium", "probability": 0.35},
             {"date": "2025-11-20", "level": "high", "probability": 0.78},
-            {"date": "2025-11-22", "level": "high", "probability": 0.85}
-        ]
+            {"date": "2025-11-22", "level": "high", "probability": 0.85},
+        ],
     }
