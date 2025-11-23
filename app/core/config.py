@@ -18,6 +18,7 @@ class Settings(BaseModel):
     postgres_user: str = env.str("POSTGRES_USER")
     postgres_password: str = env.str("POSTGRES_PASSWORD")
     postgres_db: str = env.str("POSTGRES_DB", default="coal_fire_predictor")
+    ML_MODEL_PATH: str = env.str("ML_MODEL_PATH")
 
     @property
     def database_url(self) -> str:
