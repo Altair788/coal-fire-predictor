@@ -22,11 +22,11 @@ class MLModelAdapter(MLService):
     Обеспечивает изоляцию ML-логики от остальной системы.
     """
 
-    def __init__(self, model_path: str = "ml/models/final_model.joblib"):
-        self.model_path = Path(model_path)
+    def __init__(self, model_path: str | None = None):
+        self.model_path = Path(model_path) if model_path else Path(settings.ML_MODEL_PATH)
         if not self.model_path.exists():
             logger.warning(f"Модель не найдена по пути: {self.model_path}")
-        # Модель загрузится при первом вызове predict_risk из ml/predict.py
+        # Модель загрузится при первом вызове _predict_risk
 
     def predict_risk(self, pile_features: Dict[str, Any]) -> Dict[str, Any]:
         """
