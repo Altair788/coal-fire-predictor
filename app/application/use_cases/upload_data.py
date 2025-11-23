@@ -37,9 +37,9 @@ class UploadDataService:
     def upload_csv(self, file: TextIOWrapper, data_type: str) -> None:
         """
         Загружает CSV-файл в систему.
-        Поддерживаемые типы: 'temperatures', 'fires', 'supplies', 'weather'
+        Поддерживаемые типы: 'temperature', 'fires', 'supplies', 'weather'
         """
-        if data_type == "temperatures":
+        if data_type == "temperature":
             self._upload_temperatures(file)
         elif data_type == "fires":
             self._upload_fires(file)

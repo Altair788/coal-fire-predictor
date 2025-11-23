@@ -2,7 +2,7 @@ from fastapi import APIRouter, File, Form, HTTPException, UploadFile
 
 router = APIRouter()
 
-ALLOWED_DATA_TYPES = {"temperatures", "fires", "supplies", "weather"}
+ALLOWED_DATA_TYPES = {"temperature", "fires", "supplies", "weather"}
 
 
 @router.post("")
