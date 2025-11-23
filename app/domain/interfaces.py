@@ -85,6 +85,12 @@ class PredictionRepository(ABC):
     def get_all_by_pile_id(self, pile_id: int) -> List[Prediction]:
         pass
 
+    @abstractmethod
+    def get_all_high_risk_predictions(
+            self, start_date: Optional[date] = None, end_date: Optional[date] = None
+    ) -> List[Prediction]:
+        pass
+
 
 class MLService(ABC):
     @abstractmethod
