@@ -224,3 +224,9 @@ class SQLAlchemyPredictionRepository(PredictionRepository):
         ]
         self.session.add_all(models)
         self.session.commit()
+
+    def get_all_by_pile_id(self, pile_id: int) -> List[Prediction]:
+        stmt = select(PredictionModel).where(PredictionModel.pile_id == pile_id)
+        result = self.session.execute(stmt)
+        models = result.scalars().all()
+        return [Prediction.model_validate(m) for m in models]

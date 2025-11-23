@@ -81,6 +81,10 @@ class PredictionRepository(ABC):
     def save_batch(self, predictions: List[Prediction]) -> None:
         pass
 
+    @abstractmethod
+    def get_all_by_pile_id(self, pile_id: int) -> List[Prediction]:
+        pass
+
 
 class MLService(ABC):
     @abstractmethod
