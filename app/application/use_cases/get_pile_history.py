@@ -41,27 +41,21 @@ class GetPileHistory:
             {"date": t.measurement_date.isoformat(), "temp": float(t.temperature)}
             for t in temp_history
         ]
-
-        # Сортируем по дате (на случай, если БД вернула в другом порядке)
         temperature_history.sort(key=lambda x: x["date"])
 
         # 3. Последняя температура
         last_temp = temperature_history[-1]["temp"] if temperature_history else 0.0
 
-        # 4. История прогнозов (все прогнозы для этого штабеля)
-        # Получаем все прогнозы (без ограничения по дате)
-        all_predictions = self._get_all_predictions_for_pile(pile_id)
+        # 4. История прогнозов — получаем ВСЕ прогнозы для этого штабеля
+        all_predictions = self.pred_repo.get_all_by_pile_id(pile_id)
         risk_history = []
         for p in all_predictions:
-            # Конвертируем уровень риска в строку (на случай, если в БД он в другом регистре)
             level = p.risk_level.lower() if p.risk_level else "low"
             risk_history.append({
                 "date": p.forecast_date.isoformat(),
                 "level": level,
                 "probability": float(p.probability),
             })
-
-        # Сортируем по дате прогноза
         risk_history.sort(key=lambda x: x["date"])
 
         return {
@@ -73,6 +67,3 @@ class GetPileHistory:
             "temperature_history": temperature_history,
             "risk_history": risk_history,
         }
-
-    def _get_all_predictions_for_pile(self, pile_id: int) -> List[Prediction]:
-        return self.pred_repo.get_all_by_pile_id(pile_id)
