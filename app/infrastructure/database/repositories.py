@@ -230,3 +230,26 @@ class SQLAlchemyPredictionRepository(PredictionRepository):
         result = self.session.execute(stmt)
         models = result.scalars().all()
         return [Prediction.model_validate(m) for m in models]
+
+    def _model_to_entity(self, model) -> "Prediction":
+        return Prediction(
+            pile_id=model.pile_id,
+            warehouse_id=model.warehouse_id,
+            prediction_date=model.prediction_date,
+            forecast_date=model.forecast_date,
+            risk_level=model.risk_level,
+            probability=float(model.probability),
+            model_version=model.model_version,
+        )
+
+    def get_all_high_risk_predictions(
+            self, start_date: Optional[date] = None, end_date: Optional[date] = None
+    ) -> List[Prediction]:
+        stmt = select(PredictionModel).where(PredictionModel.risk_level == "high")
+        if start_date:
+            stmt = stmt.where(PredictionModel.forecast_date >= start_date)
+        if end_date:
+            stmt = stmt.where(PredictionModel.forecast_date <= end_date)
+        result = self.session.execute(stmt)
+        models = result.scalars().all()
+        return [Prediction.model_validate(m) for m in models]
