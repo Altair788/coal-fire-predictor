@@ -5,7 +5,7 @@ router = APIRouter()
 ALLOWED_DATA_TYPES = {"temperatures", "fires", "supplies", "weather"}
 
 
-@router.post("")
+@router.post("/post")
 def upload_data(
     file: UploadFile = File(...),
     data_type: str = Form(...),
