@@ -4,6 +4,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
 
 from app.application.use_cases.calculate_fire_risk import CalculateFireRisk
+from app.application.use_cases.evaluate_model_quality import EvaluateModelQuality
 from app.application.use_cases.get_dashboard_data import GetDashboardData
 from app.application.use_cases.get_pile_history import GetPileHistory
 from app.core.config import settings
@@ -104,3 +105,9 @@ def get_get_pile_history(
     pred_repo=Depends(get_prediction_repository),
 ) -> GetPileHistory:
     return GetPileHistory(pile_repo, temp_repo, pred_repo)
+
+def get_evaluate_model_quality(
+    pred_repo=Depends(get_prediction_repository),
+    fire_repo=Depends(get_fire_incident_repository),
+) -> EvaluateModelQuality:
+    return EvaluateModelQuality(pred_repo, fire_repo)
