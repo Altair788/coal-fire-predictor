@@ -160,8 +160,6 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 .idea/
 .notes
-full_architecture.md
-backend_ds_contract.md
-backend_frontend_contract.md
+
 .env.docker
 .notes_full
