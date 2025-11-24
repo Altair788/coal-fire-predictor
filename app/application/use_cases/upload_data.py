@@ -102,7 +102,7 @@ class UploadDataService:
                     measurement_date=measurement_date,
                     temperature=float(row["Максимальная температура"]),
                     picket=row.get("Пикет"),
-                    shift=int(row["Смена"]) if row.get("Смена") else None,
+                    shift=int(float(row["Смена"])) if row.get("Смена") else None,
                 )
                 readings.append(reading)
                 logger.debug(f"Загружена запись temperature.csv: pile_id={reading.pile_id}, date={measurement_date}")
