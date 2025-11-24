@@ -15,6 +15,7 @@ def create_app() -> FastAPI:
             "http://localhost:3000",  # React
             "http://localhost:8501",  # Streamlit
             "http://localhost:5174",  # Vite (ваш текущий фронтенд)
+            "http://178.208.85.7:80",
             # разрешить все локальные порты:
             # "http://localhost:*",
         ],
