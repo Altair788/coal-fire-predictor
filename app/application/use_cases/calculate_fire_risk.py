@@ -36,31 +36,38 @@ class CalculateFireRisk:
 
     def execute(self, forecast_date: date = None) -> List[RiskForecast]:
         if forecast_date is None:
-            forecast_date = date.today()
+            # Получаем последнюю дату замера температуры среди всех штабелей
+            piles = self.pile_repo.get_all_active()
+            if not piles:
+                raise ValueError("Нет активных штабелей")
+            latest_dates = []
+            for pile in piles:
+                temp = self.temp_repo.get_latest_by_pile_id(pile.pile_id)
+                if temp:
+                    latest_dates.append(temp.measurement_date)
+            if not latest_dates:
+                raise ValueError("Нет данных о температуре — невозможно сделать прогноз")
+            forecast_date = max(latest_dates)  # самая свежая дата из всех штабелей
 
         piles = self.pile_repo.get_all_active()
         forecasts = []
 
         for pile in piles:
-            # 1. Сбор признаков
             features = self._build_pile_features(pile, forecast_date)
             if not features:
-                continue  # пропускаем, если не хватает данных
+                continue
 
-            # 2. Вызов ML-модели
             try:
                 ml_result = self.ml_service.predict_risk(features)
             except Exception:
-                continue  # пропускаем проблемные штабели
+                continue
 
-            # 3. Сохранение прогнозов в БД (3 записи)
-            predictions = self._convert_to_predictions(ml_result, pile.warehouse_id)
+            predictions = self._convert_to_predictions(ml_result, pile.warehouse_id, forecast_date)
             self.prediction_repo.save_batch(predictions)
 
-            # 4. Формирование RiskForecast для ответа
             risk_forecast = RiskForecast(
                 pile_id=ml_result["pile_id"],
-                forecast_date=ml_result["forecast_date"],
+                forecast_date=forecast_date,
                 risk_levels=ml_result["risk_levels"],
                 probabilities=ml_result["probabilities"],
             )
@@ -143,18 +150,36 @@ class CalculateFireRisk:
             "month_cos": month_cos,
         }
 
-    def _convert_to_predictions(self, ml_result: dict, warehouse_id: int) -> List[Prediction]:
+    # def _convert_to_predictions(self, ml_result: dict, warehouse_id: int) -> List[Prediction]:
+    #     """Преобразует результат ML в список Prediction для сохранения в БД."""
+    #     predictions = []
+    #     base_date = date.fromisoformat(ml_result["forecast_date"])
+    #     for i in range(1, 4):
+    #         day_key = f"day_{i}"
+    #         pred_date = base_date + timedelta(days=i - 1)
+    #         predictions.append(
+    #             Prediction(
+    #                 pile_id=ml_result["pile_id"],
+    #                 warehouse_id=warehouse_id,
+    #                 prediction_date=base_date,
+    #                 forecast_date=pred_date,
+    #                 risk_level=ml_result["risk_levels"][day_key],
+    #                 probability=ml_result["probabilities"][day_key],
+    #             )
+    #         )
+    #     return predictions
+
+    def _convert_to_predictions(self, ml_result: dict, warehouse_id: int, forecast_date: date) -> List[Prediction]:
         """Преобразует результат ML в список Prediction для сохранения в БД."""
         predictions = []
-        base_date = date.fromisoformat(ml_result["forecast_date"])
         for i in range(1, 4):
             day_key = f"day_{i}"
-            pred_date = base_date + timedelta(days=i - 1)
+            pred_date = forecast_date + timedelta(days=i - 1)
             predictions.append(
                 Prediction(
                     pile_id=ml_result["pile_id"],
                     warehouse_id=warehouse_id,
-                    prediction_date=base_date,
+                    prediction_date=forecast_date,
                     forecast_date=pred_date,
                     risk_level=ml_result["risk_levels"][day_key],
                     probability=ml_result["probabilities"][day_key],
