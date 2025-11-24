@@ -1,6 +1,8 @@
 from __future__ import annotations
 from datetime import date
 from typing import List, Optional
+
+from loguru import logger
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
@@ -98,21 +100,28 @@ class SQLAlchemyTemperatureRepository(TemperatureRepository):
         return [TemperatureReading.model_validate(m) for m in models]
 
     def save_batch(self, readings: List[TemperatureReading]) -> None:
-        models = [
-            TemperatureModel(
-                measurement_date=r.measurement_date,
-                warehouse_id=r.warehouse_id,
-                pile_id=r.pile_id,
-                coal_type=r.coal_type,
-                temperature=r.temperature,
-                picket=r.picket,
-                shift=r.shift,
-            )
-            for r in readings
-        ]
-        self.session.add_all(models)
-        self.session.commit()
-
+        try:
+            models = []
+            for r in readings:
+                logger.debug(f"[TEMP REPO] Преобразование в модель: {r}")
+                # Убедитесь, что coal_type НЕ используется
+                model = TemperatureModel(
+                    measurement_date=r.measurement_date,
+                    warehouse_id=r.warehouse_id,
+                    pile_id=r.pile_id,
+                    temperature=r.temperature,
+                    picket=r.picket,
+                    shift=r.shift,
+                    # coal_type НЕ передаём!
+                )
+                models.append(model)
+            self.session.add_all(models)
+            self.session.commit()
+            logger.info(f"[TEMP REPO] Успешно сохранено {len(models)} записей")
+        except Exception as e:
+            logger.exception(f"[TEMP REPO] Ошибка при сохранении: {e}")
+            self.session.rollback()
+            raise
 
 class SQLAlchemyFireIncidentRepository(FireIncidentRepository):
     def __init__(

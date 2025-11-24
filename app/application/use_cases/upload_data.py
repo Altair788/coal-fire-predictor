@@ -95,6 +95,7 @@ class UploadDataService:
         readings = []
         for row_num, row in enumerate(reader, start=1):
             try:
+                logger.debug(f"[TEMP] Обработка строки {row_num}: {row}")
                 measurement_date = datetime.strptime(row["Дата акта"], "%Y-%m-%d").date()
                 reading = TemperatureReading(
                     pile_id=int(row["Штабель"]),
@@ -105,17 +106,22 @@ class UploadDataService:
                     shift=int(float(row["Смена"])) if row.get("Смена") else None,
                 )
                 readings.append(reading)
-                logger.debug(f"Загружена запись temperature.csv: pile_id={reading.pile_id}, date={measurement_date}")
+                logger.debug(f"[TEMP] Успешно создана запись: {reading}")
             except (ValueError, KeyError) as e:
                 logger.error(
-                    f"Пропущена строка {row_num} в temperature.csv: ошибка парсинга — {e}. Строка: {row}"
+                    f"[TEMP] Пропущена строка {row_num} в temperature.csv: ошибка парсинга — {e}. Строка: {row}"
                 )
                 continue
+            except Exception as e:
+                logger.exception(f"[TEMP] Неожиданная ошибка в строке {row_num}: {e}")
+                raise
 
         if not readings:
             raise ValueError("Не удалось загрузить ни одной корректной записи из temperature.csv")
 
+        logger.info(f"[TEMP] Сохранение {len(readings)} записей температуры в БД")
         self.temperature_repo.save_batch(readings)
+
 
     def _upload_fires(self, file: TextIOWrapper) -> None:
         """Загружает данные из fires.csv"""
