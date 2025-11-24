@@ -2,10 +2,13 @@ import joblib
 import pandas as pd
 import numpy as np
 from datetime import datetime
+from pathlib import Path
+
+_MODEL_PATH = Path(__file__).parent / "models" / "final_model.joblib"
 
 
 class CoalFirePredictor:
-    def __init__(self, model_path='final_model.joblib'):
+    def __init__(self, model_path=_MODEL_PATH):
         try:
             model_data = joblib.load(model_path)
             self.model = model_data['model']
