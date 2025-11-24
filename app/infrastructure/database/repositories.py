@@ -34,26 +34,39 @@ class SQLAlchemyCoalPileRepository(CoalPileRepository):
         self.session = session
 
     def get_by_id(self, pile_id: int) -> Optional[CoalPile]:
-        stmt = (
-            select(SupplyModel)
-            .where(SupplyModel.pile_id == pile_id)
+        supply = (
+            self.session.query(SupplyModel)
+            .filter(SupplyModel.pile_id == pile_id)
             .order_by(SupplyModel.unloading_date.asc())
-            .limit(1)
+            .first()
         )
-        result = self.session.execute(stmt)
-        model = result.scalar_one_or_none()
-        return CoalPile.model_validate(model) if model else None
+        if not supply:
+            return None
+        return CoalPile(
+            pile_id=supply.pile_id,
+            coal_type=supply.coal_type,
+            formation_date=supply.unloading_date,  # ← здесь преобразование
+            initial_volume_tonnes=float(supply.to_warehouse_ton),  # ← здесь преобразование
+            warehouse_id=supply.warehouse_id,
+        )
 
     def get_all_active(self) -> List[CoalPile]:
-        # Используем DISTINCT ON для PostgreSQL-совместимости
-        stmt = (
-            select(SupplyModel)
+        supplies = (
+            self.session.query(SupplyModel)
             .distinct(SupplyModel.pile_id)
             .order_by(SupplyModel.pile_id, SupplyModel.unloading_date.asc())
+            .all()
         )
-        result = self.session.execute(stmt)
-        models = result.scalars().all()
-        return [CoalPile.model_validate(m) for m in models]
+        return [
+            CoalPile(
+                pile_id=s.pile_id,
+                coal_type=s.coal_type,
+                formation_date=s.unloading_date,
+                initial_volume_tonnes=float(s.to_warehouse_ton),
+                warehouse_id=s.warehouse_id,
+            )
+            for s in supplies
+        ]
 
     def save(self, pile: CoalPile) -> None:
         db_obj = SupplyModel(
@@ -133,33 +146,51 @@ class SQLAlchemyFireIncidentRepository(FireIncidentRepository):
         self.coal_pile_repo = coal_pile_repo
 
     def get_by_pile_id(self, pile_id: int) -> List[FireIncident]:
-        stmt = (
-            select(FireModel)
-            .where(FireModel.pile_id == pile_id)
+        fires = (
+            self.session.query(FireModel)
+            .filter(FireModel.pile_id == pile_id)
             .order_by(FireModel.fire_start_date.asc())
+            .all()
         )
-        result = self.session.execute(stmt)
-        models = result.scalars().all()
-        return [FireIncident.model_validate(m) for m in models]
+        return [
+            FireIncident(
+                pile_id=f.pile_id,
+                warehouse_id=f.warehouse_id,
+                actual_date=f.fire_start_date,
+                document_date=f.document_date,
+                weight_act=float(f.weight_act),
+            )
+            for f in fires
+        ]
 
     def get_last_fire_date_by_pile_id(self, pile_id: int) -> Optional[date]:
-        stmt = (
-            select(FireModel.fire_start_date)
-            .where(FireModel.pile_id == pile_id)
+        fire = (
+            self.session.query(FireModel)
+            .filter(FireModel.pile_id == pile_id)
             .order_by(FireModel.fire_start_date.desc())
-            .limit(1)
+            .first()
         )
-        result = self.session.execute(stmt)
-        return result.scalar_one_or_none()
+        return fire.fire_start_date if fire else None
 
     def get_fires_in_date_range(self, start: date, end: date) -> List[FireIncident]:
-        stmt = select(FireModel).where(
-            FireModel.fire_start_date >= start,
-            FireModel.fire_start_date <= end,
+        fires = (
+            self.session.query(FireModel)
+            .filter(
+                FireModel.fire_start_date >= start,
+                FireModel.fire_start_date <= end,
+            )
+            .all()
         )
-        result = self.session.execute(stmt)
-        models = result.scalars().all()
-        return [FireIncident.model_validate(m) for m in models]
+        return [
+            FireIncident(
+                pile_id=f.pile_id,
+                warehouse_id=f.warehouse_id,
+                actual_date=f.fire_start_date,
+                document_date=f.document_date,
+                weight_act=float(f.weight_act),
+            )
+            for f in fires
+        ]
 
     def save_batch(self, incidents: List[FireIncident]) -> None:
         models = []

@@ -1,6 +1,8 @@
 from datetime import date, timedelta
 from typing import List
 
+from loguru import logger
+
 from app.domain.entities import RiskForecast, Prediction, CoalPile
 from app.domain.interfaces import (
     CoalPileRepository,
@@ -114,6 +116,10 @@ class CalculateFireRisk:
         # Погода
         weather = self.weather_repo.get_by_date(forecast_date)
         if not weather:
+            logger.warning(f"Нет погоды на дату {forecast_date} для штабеля {pile.pile_id}")
+            return None
+        if not latest_temp:
+            logger.warning(f"Нет температуры для штабеля {pile.pile_id}")
             return None
 
         # Сезонные признаки
@@ -150,24 +156,6 @@ class CalculateFireRisk:
             "month_cos": month_cos,
         }
 
-    # def _convert_to_predictions(self, ml_result: dict, warehouse_id: int) -> List[Prediction]:
-    #     """Преобразует результат ML в список Prediction для сохранения в БД."""
-    #     predictions = []
-    #     base_date = date.fromisoformat(ml_result["forecast_date"])
-    #     for i in range(1, 4):
-    #         day_key = f"day_{i}"
-    #         pred_date = base_date + timedelta(days=i - 1)
-    #         predictions.append(
-    #             Prediction(
-    #                 pile_id=ml_result["pile_id"],
-    #                 warehouse_id=warehouse_id,
-    #                 prediction_date=base_date,
-    #                 forecast_date=pred_date,
-    #                 risk_level=ml_result["risk_levels"][day_key],
-    #                 probability=ml_result["probabilities"][day_key],
-    #             )
-    #         )
-    #     return predictions
 
     def _convert_to_predictions(self, ml_result: dict, warehouse_id: int, forecast_date: date) -> List[Prediction]:
         """Преобразует результат ML в список Prediction для сохранения в БД."""

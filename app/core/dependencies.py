@@ -67,6 +67,7 @@ def get_ml_service() -> MLService:
     return MLModelAdapter()
 
 
+# УБРАТЬ ДУБЛИКАТ — оставить ОДИН раз
 def get_calculate_fire_risk(
     pile_repo=Depends(get_coal_pile_repository),
     temp_repo=Depends(get_temperature_repository),
@@ -84,6 +85,7 @@ def get_calculate_fire_risk(
         ml_service=ml_service,
     )
 
+
 def get_get_dashboard_data(
     pile_repo=Depends(get_coal_pile_repository),
     temp_repo=Depends(get_temperature_repository),
@@ -99,12 +101,14 @@ def get_get_dashboard_data(
         weather_repo=weather_repo,
     )
 
+
 def get_get_pile_history(
     pile_repo=Depends(get_coal_pile_repository),
     temp_repo=Depends(get_temperature_repository),
     pred_repo=Depends(get_prediction_repository),
 ) -> GetPileHistory:
     return GetPileHistory(pile_repo, temp_repo, pred_repo)
+
 
 def get_evaluate_model_quality(
     pred_repo=Depends(get_prediction_repository),

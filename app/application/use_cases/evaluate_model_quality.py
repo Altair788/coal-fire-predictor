@@ -27,18 +27,16 @@ class EvaluateModelQuality:
             start_date or date.min, end_date or date.max
         )
 
-        # Преобразуем пожары в словарь для поиска по (pile_id, date)
+        # Преобразуем пожары в множество для O(1) поиска
         fire_set = {(f.pile_id, f.actual_date) for f in all_fires}
 
         fire_events = []
         hits = 0
-        total_predictions = 0
+        total_predictions = len(all_high_predictions)
 
         for pred in all_high_predictions:
-            total_predictions += 1
             hit = False
-
-            # Проверяем, было ли возгорание в окне [D+1, D+3]
+            # Проверяем окно [D+1, D+3] (как в ТЗ: прогноз за 1–3 дня до возгорания)
             for days_ahead in range(1, 4):
                 check_date = pred.forecast_date + timedelta(days=days_ahead)
                 if (pred.pile_id, check_date) in fire_set:
@@ -46,10 +44,12 @@ class EvaluateModelQuality:
                     hits += 1
                     break
 
-            # Формируем запись события
             fire_events.append({
                 "pile_id": pred.pile_id,
-                "actual_date": (pred.forecast_date + timedelta(days=1)).isoformat() if hit else None,
+                "actual_date": (
+                    (pred.forecast_date + timedelta(days=1)).isoformat()
+                    if hit else None
+                ),
                 "predicted_interval": [
                     (pred.forecast_date + timedelta(days=1)).isoformat(),
                     (pred.forecast_date + timedelta(days=3)).isoformat(),
@@ -66,7 +66,6 @@ class EvaluateModelQuality:
         recall = true_positives / (true_positives + false_negatives) if (true_positives + false_negatives) > 0 else 0.0
         f1_score = 2 * (precision * recall) / (precision + recall) if (precision + recall) > 0 else 0.0
 
-        # PR-AUC — заглушка из ml/metrics.json (или можно читать файл)
         pr_auc = self._load_pr_auc_from_file()
 
         return {

@@ -54,7 +54,7 @@ class Temperature(Base):
     warehouse_id = Column(Integer, nullable=False)
     pile_id = Column(Integer, nullable=False)
     temperature = Column(Numeric(5, 2), nullable=False)
-    picket = Column(String(50))
+    picket = Column(String(200))
     shift = Column(Integer)
     loaded_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
 
