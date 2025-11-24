@@ -10,7 +10,9 @@ services:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - POSTGRES_DB=${POSTGRES_DB}
       - DEBUG=${DEBUG}
-      - ML_MODEL_PATH=${ML_MODEL_PATH}
+      - ML_MODEL_PATH=ml/models/final_model.joblib
+    volumes:
+      - ./ml/models:/app/ml/models
     depends_on:
       - db
     restart: unless-stopped
