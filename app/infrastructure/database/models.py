@@ -53,7 +53,6 @@ class Temperature(Base):
     measurement_date = Column(Date, nullable=False)
     warehouse_id = Column(Integer, nullable=False)
     pile_id = Column(Integer, nullable=False)
-    coal_type = Column(String(50), nullable=False)
     temperature = Column(Numeric(5, 2), nullable=False)
     picket = Column(String(50))
     shift = Column(Integer)
