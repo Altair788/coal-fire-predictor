@@ -29,9 +29,9 @@ class CoalFirePredictor:
         return df_scaled
 
     def _map_risk_level(self, probability):
-        if probability < 0.001: # 0.3
+        if probability < 0.005: # 0.3
             return "low"
-        elif probability < 0.005: # 0.7
+        elif probability < 0.01: # 0.7
             return "medium"
         else:
             return "high"
@@ -56,7 +56,7 @@ class CoalFirePredictor:
 
             result = {
                 "pile_id": pile_features.get('pile_id', 0),
-                "forecast_date": datetime.now().strftime('%Y-%m-%d'),
+                "forecast_date": pile_features.get("forecast_date", datetime.now().strftime('%Y-%m-%d')),
                 "risk_levels": risk_levels,
                 "probabilities": probabilities
             }
