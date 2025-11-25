@@ -14,8 +14,9 @@ def create_app() -> FastAPI:
         allow_origins=[
             "http://localhost:3000",  # React
             "http://localhost:8501",  # Streamlit
-            "http://localhost:5174",  # Vite (ваш текущий фронтенд)
-            "http://178.208.85.7:80",
+            "http://localhost:5174",
+            "http://178.208.85.7:8000",
+            "http://localhost:5173",
             # разрешить все локальные порты:
             # "http://localhost:*",
         ],
