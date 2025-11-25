@@ -17,7 +17,6 @@ def create_app() -> FastAPI:
             "http://localhost:5174",
             "http://178.208.85.7:8000",
             "http://localhost:5173",
-            "http://178.208.85.7:88",
             # разрешить все локальные порты:
             # "http://localhost:*",
         ],
